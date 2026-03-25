@@ -26,6 +26,12 @@ pnpm prisma db push
 pnpm prisma generate
 ```
 
+Run seeds to populate the database with demo data:
+
+```bashbash
+pnpm prisma db seed
+```
+
 ### 4. Run Development Server
 
 ```bash
