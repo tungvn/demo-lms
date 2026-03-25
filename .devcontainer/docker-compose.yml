@@ -1,0 +1,30 @@
+version: "3.8"
+
+x-base: &base
+  tty: true
+  env_file: .env.local
+  networks:
+    ordinarist.localhost: {}
+  volumes:
+    - .devcontainer/.yarnrc:/root/.yarnrc:ro
+    - .:/workspace
+x-node: &node
+  <<: *base
+  build:
+    context: .
+    dockerfile: .devcontainer/Dockerfile.node20
+
+services:
+  nextjs:
+    <<: *node
+    container_name: demo-lms.ordinarist.localhost
+    hostname: demo-lms.ordinarist.localhost
+    networks:
+      ordinarist.localhost: {}
+    working_dir: /workspace
+    volumes:
+      - nextjs-vscode-server:/root/.vscode-server
+      - .devcontainer/.yarnrc:/root/.yarnrc:ro
+      - .:/workspace
+volumes:
+  nextjs-vscode-server: {}

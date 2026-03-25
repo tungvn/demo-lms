@@ -1,0 +1,89 @@
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/services/db/prisma"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  extensions = [pgcrypto(schema: "extensions"), uuid_ossp(map: "uuid-ossp", schema: "extensions")]
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+// ============================================
+// Models
+// ============================================
+
+model Parent {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  email     String
+  phone     String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  students Student[]
+
+  @@map("parents")
+}
+
+model Student {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  parentId     String    @db.Uuid
+  name         String
+  dob          DateTime? @db.Date
+  gender       Gender?
+  currentGrade String?   @map("current_grade")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  parent             Parent              @relation(fields: [parentId], references: [id])
+  classRegistrations ClassRegistration[]
+  subscriptions      Subscription[]
+
+  @@map("students")
+}
+
+model Class {
+  id          String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String
+  subject     String
+  dayOfWeek   String @map("day_of_week")
+  timeSlot    String @map("time_slot")
+  teacherName String @map("teacher_name")
+  maxStudents Int    @map("max_students")
+
+  registrations ClassRegistration[]
+
+  @@map("classes")
+}
+
+model ClassRegistration {
+  classId   String @db.Uuid @map("class_id")
+  studentId String @db.Uuid @map("student_id")
+
+  class   Class   @relation(fields: [classId], references: [id])
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@id([classId, studentId])
+
+  @@map("class_registrations")
+}
+
+model Subscription {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  studentId     String   @db.Uuid @map("student_id")
+  packageName   String   @map("package_name")
+  startDate     DateTime @db.Date @map("start_date")
+  endDate       DateTime @db.Date @map("end_date")
+  totalSessions Int      @map("total_sessions")
+  usedSessions  Int      @map("used_sessions")
+
+  student Student @relation(fields: [studentId], references: [id])
+
+  @@map("subscriptions")
+}

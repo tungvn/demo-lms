@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  pgsql:
+    tty: true
+    networks:
+      ordinarist.localhost: {}
+    platform: linux/x86_64
+    image: postgres:15
+    container_name: pgsql.demo-lms.ordinarist.localhost
+    hostname: pgsql.demo-lms.ordinarist.localhost
+    ports:
+      - 5432
+    environment:
+      POSTGRES_USER: ${DB_USER:-root}
+      POSTGRES_PASSWORD: ${DB_PASS:-secret}
+    volumes:
+       - pgsql-data:/data/postgres
+
+networks:
+  ordinarist.localhost:
+    name: ordinarist.localhost
+    external: true
+
+volumes:
+  pgsql-data: {}
